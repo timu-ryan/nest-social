@@ -9,6 +9,7 @@ import { UsersService } from 'src/users/users.service';
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcryptjs';
 import { User } from 'src/users/users.model';
+import { JwtPayload } from './types';
 
 @Injectable()
 export class AuthService {
@@ -41,7 +42,11 @@ export class AuthService {
   }
 
   private generateToken(user: User) {
-    const payload = { email: user.email, id: user.id, roles: user.roles };
+    const payload: JwtPayload = {
+      email: user.email,
+      id: user.id,
+      roles: (user.roles ?? []).map((r) => r.value),
+    };
     return {
       token: this.jwtService.sign(payload),
     };
