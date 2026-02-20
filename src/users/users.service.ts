@@ -13,7 +13,7 @@ export class UsersService {
 
   async createUser(dto: CreateUserDto) {
     const user = await this.userRepository.create(dto);
-    const role = await this.roleService.getRoleByValue('USER');
+    const role = await this.roleService.getRoleByValue('ADMIN');
     if (!role) {
       throw new NotFoundException('Роль не найдена');
     }
@@ -23,7 +23,10 @@ export class UsersService {
   }
 
   async getAllUsers() {
-    const users = await this.userRepository.findAll({ include: { all: true } });
+    const users = await this.userRepository.findAll({
+      include: { all: true },
+      attributes: { exclude: ['password'] },
+    });
     return users;
   }
 
