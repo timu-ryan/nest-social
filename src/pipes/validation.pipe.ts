@@ -6,11 +6,12 @@ import { ValidationException } from 'src/exceptions/validation.exception';
 @Injectable()
 export class ValidationPipe implements PipeTransform<any> {
   async transform(value: any, metadata: ArgumentMetadata): Promise<any> {
-    if (!metadata.metatype) {
+    const { metatype } = metadata;
+    if (!metatype || !this.toValidate(metatype) || value == null) {
       return value;
     }
 
-    const obj = plainToInstance(metadata.metatype as any, value);
+    const obj = plainToInstance(metatype as any, value);
     const errors = await validate(obj);
 
     if (errors.length) {
@@ -25,5 +26,12 @@ export class ValidationPipe implements PipeTransform<any> {
     }
 
     return value;
+  }
+
+  // eslint-disable-next-line @typescript-eslint/no-unsafe-function-type
+  private toValidate(metatype: Function): boolean {
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-function-type
+    const types: Function[] = [String, Boolean, Number, Array, Object];
+    return !types.includes(metatype);
   }
 }
